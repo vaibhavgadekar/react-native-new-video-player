@@ -1,0 +1,69 @@
+{
+  "name": "expo-video-player",
+  "version": "2.0.1",
+  "description": "Customizable Video Player controls for Expo",
+  "keywords": [
+    "customizable",
+    "expo",
+    "player",
+    "react-native",
+    "video-player",
+    "expo-video-player",
+    "videoplayer",
+    "expo-videoplayer"
+  ],
+  "homepage": "https://github.com/ihmpavel/expo-video-player",
+  "bugs": "https://github.com/ihmpavel/expo-video-player/issues",
+  "repository": {
+    "type": "git"
+  },
+  "license": "MIT",
+  "author": "Pavel Ihm",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "lint": "eslint \"lib/**/*.{js,ts,tsx}\"",
+    "lint:fix": "eslint \"lib/**/*.{js,ts,tsx}\" --fix",
+    "test": "yarn lint && yarn tsc-test && yarn jest",
+    "tsc-test": "tsc --project . --noEmit",
+    "jest": "jest"
+  },
+  "devDependencies": {
+    "@react-native-community/slider": "^3.0.3",
+    "@types/jest": "^26.0.23",
+    "@types/react": "^17.0.11",
+    "@types/react-native": "^0.64.10",
+    "@types/react-test-renderer": "^17.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.0",
+    "eslint": "^7.29.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-plugin-react-native": "^3.11.0",
+    "eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
+    "expo": "^41.0.1",
+    "expo-av": "^9.1.2",
+    "jest": "^27.0.5",
+    "jest-expo": "^41.0.0",
+    "prettier": "^2.3.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-41.0.0.tar.gz",
+    "react-test-renderer": "^17.0.2",
+    "ts-jest": "^27.0.3",
+    "typescript": "^4.3.4"
+  },
+  "peerDependencies": {
+    "@react-native-community/slider": ">=3.0.0",
+    "expo": ">=38.0.0",
+    "expo-av": ">=5.0.2"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  }
+}
