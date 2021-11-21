@@ -1,6 +1,6 @@
 import { __awaiter, __rest } from "tslib";
 import { Audio, Video } from 'expo-av';
-import { ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableWithoutFeedback, View, } from 'react-native';
+import { ActivityIndicator, Animated, Dimensions, Image, StyleSheet, Text, TouchableWithoutFeedback, View, } from 'react-native';
 import { ControlStates, ErrorSeverity, PlaybackStates } from './constants';
 import { ErrorMessage, TouchableButton, deepMerge, getMinutesSecondsFromMilliseconds, styles, } from './utils';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { defaultProps } from './props';
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 import Slider from '@react-native-community/slider';
+import Pressable from "react-native/Libraries/Components/Pressable/Pressable";
 const VideoPlayer = (tempProps) => {
     const props = deepMerge(defaultProps, tempProps);
     let playbackInstance = null;
@@ -134,9 +135,31 @@ const VideoPlayer = (tempProps) => {
     };
 
 
-    const forward10=()=>{
+    const forward10 = (status) => {
+        // props.playbackCallback(status);
+        console.log(status.positionMillis);
         if (status.isLoaded) {
-        
+            setPlaybackInstanceInfo(Object.assign(Object.assign({}, playbackInstanceInfo), {
+                position: status.positionMillis + 10000, duration: status.durationMillis || 0, state: status.didJustFinish
+                    ? PlaybackStates.Ended
+                    : status.isBuffering
+                        ? PlaybackStates.Buffering
+                        : status.shouldPlay
+                            ? PlaybackStates.Playing
+                            : PlaybackStates.Paused
+            }));
+            if ((status.didJustFinish && controlsState === ControlStates.Hidden) ||
+                (status.isBuffering && controlsState === ControlStates.Hidden && initialShow)) {
+                animationToggle();
+                initialShow = false;
+            }
+        }
+        else {
+            if (status.isLoaded === false && status.error) {
+                const errorMsg = `Encountered a fatal error during playback: ${status.error}`;
+                setErrorMessage(errorMsg);
+                props.errorCallback({ type: ErrorSeverity.Fatal, message: errorMsg, obj: {} });
+            }
         }
     }
     const togglePlay = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -190,18 +213,25 @@ const VideoPlayer = (tempProps) => {
 
         <TouchableWithoutFeedback onPress={animationToggle}>
             <Animated.View style={Object.assign(Object.assign({}, StyleSheet.absoluteFillObject), { opacity: controlsOpacity, justifyContent: 'center', alignItems: 'center' })}>
+
                 <View style={Object.assign(Object.assign({}, StyleSheet.absoluteFillObject), { backgroundColor: props.style.controlsBackgroundColor, opacity: 0.5 })} />
+                <View style={{ width: Dimensions.get('window').width, justifyContent: 'space-between', flexDirection: 'row', top: 0, position: 'absolute', marginTop: 15 }}>
+                    {playbackInstanceInfo.state !== PlaybackStates.Buffering && <Image source={
+                        require('./img/left.png')
+                    } style={{ height: 50, width: 50, marginLeft: 15 }} tintColor="white" />}
+                </View>
+
                 <View pointerEvents={controlsState === ControlStates.Visible ? 'auto' : 'none'}>
                     <View style={styles.iconWrapper}>
                         <View style={{ flexDirection: 'row', }}>
-                           {playbackInstanceInfo.state !== PlaybackStates.Buffering && <Image source={
+                            {playbackInstanceInfo.state !== PlaybackStates.Buffering && <Image source={
                                 require('./img/backward.png')
-                            } style={{ height: 40, width: 40, marginTop: 22, marginRight: 15 }} tintColor="white" />}
+                            } style={{ height: 40, width: 40, marginTop: 20, marginRight: 30 }} tintColor="white" />}
 
                             <TouchableButton onPress={togglePlay}>
                                 <View>
                                     {playbackInstanceInfo.state === PlaybackStates.Buffering &&
-                                        (props.icon.loading || <ActivityIndicator {...props.activityIndicator} size="large" /> )}
+                                        (props.icon.loading || <ActivityIndicator {...props.activityIndicator} size="large" />)}
                                     {playbackInstanceInfo.state === PlaybackStates.Playing && props.icon.pause}
                                     {playbackInstanceInfo.state === PlaybackStates.Paused && props.icon.play}
                                     {playbackInstanceInfo.state === PlaybackStates.Ended && props.icon.replay}
@@ -213,13 +243,14 @@ const VideoPlayer = (tempProps) => {
                                                 playbackInstanceInfo.state === PlaybackStates.Playing ?
                                                     require('./img/pause.png')
                                                     : require('./img/play.png')
-                                            } style={{ height: 60, width: 60,marginTop:10 }} tintColor="white" />
+                                            } style={{ height: 80, width: 80, }} tintColor="white" />
                                         )}
                                 </View>
                             </TouchableButton>
-                            {playbackInstanceInfo.state !== PlaybackStates.Buffering &&      <Image source={require('./img/forward.png')
-                            } style={{ height: 40, width: 40, marginTop: 22, marginLeft: 20 }} tintColor="white" />
-                        }
+                            {playbackInstanceInfo.state !== PlaybackStates.Buffering && <Pressable onPress={forward10}>
+                                <Image source={require('./img/forward.png')} style={{ height: 40, width: 40, marginTop: 22, marginLeft: 30 }} tintColor="white" />
+                            </Pressable>
+                            }
                         </View>
                     </View>
                 </View>
@@ -230,6 +261,7 @@ const VideoPlayer = (tempProps) => {
             styles.bottomInfoWrapper,
             {
                 opacity: controlsOpacity,
+                marginBottom: 28
             },
         ]}>
             {props.timeVisible && (<Text style={[props.textStyle, styles.timeLeft]}>
